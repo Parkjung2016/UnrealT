@@ -1,7 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "UnrealTCharacter.h"
-#include "UnrealTProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -28,7 +27,7 @@ AUnrealTCharacter::AUnrealTCharacter()
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	GetMesh()->SetRelativeLocation(FVector(-30.0f, 0.0f, -90.0f));
-	GetMesh()->SetRelativeRotation(0.0f, 0.0f, -90.0f);
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, 0.0f, -90.0f));
 }
 
 void AUnrealTCharacter::BeginPlay()
