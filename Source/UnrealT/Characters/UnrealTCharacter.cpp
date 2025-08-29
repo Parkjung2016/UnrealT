@@ -15,7 +15,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AUnrealTCharacter::AUnrealTCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-
+GetMesh()->GetAnimInstance()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(GetMesh(),TEXT("head"));
 	CameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
