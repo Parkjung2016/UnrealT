@@ -15,10 +15,9 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AUnrealTCharacter::AUnrealTCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-GetMesh()->GetAnimInstance()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(GetMesh(),TEXT("head"));
-	CameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
+	CameraComponent->SetRelativeLocation(FVector(0.f,20.0f,0.f)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 18.0f, 0.0f));
@@ -29,7 +28,6 @@ void AUnrealTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 }
-
 
 void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
