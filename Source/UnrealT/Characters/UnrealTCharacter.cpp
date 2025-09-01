@@ -15,9 +15,9 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 AUnrealTCharacter::AUnrealTCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-GetMesh()->GetAnimInstance()
+	//GetMesh()->GetAnimInstance();
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	CameraComponent->SetupAttachment(GetMesh(),TEXT("head"));
+	CameraComponent->SetupAttachment(GetMesh(), TEXT("head"));
 	CameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
@@ -45,9 +45,9 @@ void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error,
-		       TEXT(
-			       "'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
-		       ), *GetNameSafe(this));
+			TEXT(
+				"'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+			), *GetNameSafe(this));
 	}
 }
 
