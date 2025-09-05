@@ -40,7 +40,19 @@ void UUnrealTCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 
 	WallDistanceLast = Character->GetWallDistance();
-	UE_LOG(LogTemp, Warning, TEXT("WallDistanceLast: %f"), WallDistanceLast);
 	WallDistanceCurrent = UKismetMathLibrary::FInterpTo(WallDistanceCurrent, WallDistanceLast, DeltaSeconds,
 	                                                    WallDistanceInterpSpeed);
+	bool isAiming = Character->GetIsAiming();
+	if (isAiming)
+	{
+		if (AimingWeightCurrent < 1.0f)
+			AimingWeightCurrent = UKismetMathLibrary::FInterpTo(AimingWeightCurrent, 1, DeltaSeconds,
+			                                                    AimingWeightInterpSpeed);
+	}
+	else
+	{
+		if (AimingWeightCurrent > 0.f)
+			AimingWeightCurrent = UKismetMathLibrary::FInterpTo(AimingWeightCurrent, 0, DeltaSeconds,
+			                                                    AimingWeightInterpSpeed);
+	}
 }

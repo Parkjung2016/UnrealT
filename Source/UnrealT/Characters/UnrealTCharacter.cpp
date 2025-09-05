@@ -9,7 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
-#include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -34,6 +34,15 @@ void AUnrealTCharacter::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(UpdateWallTimerHandle, TimerDelegate, .03f, true);
 }
 
+void AUnrealTCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	if (GetCharacterMovement()->IsFalling() && IsAiming)
+	{
+		IsAiming = false;
+	}
+}
+
 void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
@@ -44,6 +53,9 @@ void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(MoveAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Move);
 
 		EnhancedInputComponent->BindAction(LookAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Look);
+		EnhancedInputComponent->BindAction(FireAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Fire);
+		EnhancedInputComponent->BindAction(AimingAction.Get(), ETriggerEvent::Triggered, this,
+		                                   &AUnrealTCharacter::Aiming);
 	}
 	else
 	{
@@ -75,6 +87,32 @@ void AUnrealTCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void AUnrealTCharacter::Fire(const FInputActionValue& Value)
+{
+	FVector launchDirection = -CameraComponent->GetForwardVector();
+	if (!IsAiming)
+	{
+		float randomX = FMath::FRandRange(-1.f, 1.f);
+		float randomY = FMath::FRandRange(-1.f, 1.f);
+		float randomZ = FMath::FRandRange(-1.f, 1.f);
+
+		FVector randomVector = FVector(randomX, randomY, randomZ);
+
+		launchDirection += randomVector;
+		launchDirection.Normalize();
+	}
+	FVector launchVelocity = launchDirection * LaunchPower;
+	LaunchCharacter(launchVelocity, true, true);
+}
+
+void AUnrealTCharacter::Aiming(const FInputActionValue& Value)
+{
+	if (GetCharacterMovement()->IsFalling())return;;
+	bool isAiming = Value.Get<bool>();
+	IsAiming = isAiming;
+	CameraComponent->FieldOfView = IsAiming ? 80.f : 90.f;
 }
 
 void AUnrealTCharacter::UpdateWallDistance()
