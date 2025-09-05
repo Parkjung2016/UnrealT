@@ -2,6 +2,7 @@
 
 #include "UnrealTCharacterAnimInstance.h"
 #include "UnrealTCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UUnrealTCharacterAnimInstance::NativeInitializeAnimation()
@@ -25,10 +26,9 @@ void UUnrealTCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	FVector Right = UKismetMathLibrary::GetRightVector(ActorRot);
 
 	WalkForward = FVector::DotProduct(Forward, Velocity);
-	UE_LOG(LogTemp, Warning, TEXT("Walk forward: %f  Walk right : %f"), WalkForward, WalkRight);
 	WalkRight = FVector::DotProduct(Right, Velocity);
 
-	
+	IsFalling = Character->GetCharacterMovement()->IsFalling();
 	APlayerController* PC = Cast<APlayerController>(Character->GetController());
 	if (PC)
 	{
@@ -36,6 +36,11 @@ void UUnrealTCharacterAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(ControlRot, ActorRot);
 
 		HorizontalAngle = DeltaRot.Yaw;
-		VerticalAngle   = DeltaRot.Pitch;
+		VerticalAngle = DeltaRot.Pitch;
 	}
+
+	WallDistanceLast = Character->GetWallDistance();
+	UE_LOG(LogTemp, Warning, TEXT("WallDistanceLast: %f"), WallDistanceLast);
+	WallDistanceCurrent = UKismetMathLibrary::FInterpTo(WallDistanceCurrent, WallDistanceLast, DeltaSeconds,
+	                                                    WallDistanceInterpSpeed);
 }
