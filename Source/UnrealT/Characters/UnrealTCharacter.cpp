@@ -9,16 +9,16 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 AUnrealTCharacter::AUnrealTCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-GetMesh()->GetAnimInstance()
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(GetMesh(),TEXT("head"));
-	CameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
+	CameraComponent->SetRelativeLocation(FVector(0.f, 20.0f, 0.f)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
 	GetMesh()->SetRelativeLocation(FVector(0.0f, 18.0f, 0.0f));
@@ -28,19 +28,22 @@ GetMesh()->GetAnimInstance()
 void AUnrealTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-}
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindUFunction(this, FName("UpdateWallDistance"));
 
+	GetWorld()->GetTimerManager().SetTimer(UpdateWallTimerHandle, TimerDelegate, .03f, true);
+}
 
 void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction.Get(), ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction.Get(), ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AUnrealTCharacter::Move);
+		EnhancedInputComponent->BindAction(MoveAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Move);
 
-		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AUnrealTCharacter::Look);
+		EnhancedInputComponent->BindAction(LookAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Look);
 	}
 	else
 	{
@@ -71,5 +74,25 @@ void AUnrealTCharacter::Look(const FInputActionValue& Value)
 	{
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
+
+void AUnrealTCharacter::UpdateWallDistance()
+{
+	FVector startPoint = CameraComponent->GetComponentLocation();
+	FVector endDirection = CameraComponent->GetForwardVector() * MaxWallCheckDistance;
+	FVector endPoint = startPoint + endDirection;
+	FHitResult hitResult;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	bool result = GetWorld()->LineTraceSingleByChannel(hitResult, startPoint, endPoint, ECC_Camera, params);
+	if (result)
+	{
+		float distance = FVector::Distance(startPoint, hitResult.Location);
+		WallDistance = distance / MaxWallCheckDistance;
+	}
+	else
+	{
+		WallDistance = 1.0f;
 	}
 }
