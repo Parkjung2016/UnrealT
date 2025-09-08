@@ -3,11 +3,12 @@
 
 #include "RocketGimmick.h"
 #include "TimerManager.h"
+#include "UnrealT/Characters/UnrealTCharacter.h"
 
 // Sets default values
 ARocketGimmick::ARocketGimmick()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 }
@@ -16,7 +17,7 @@ ARocketGimmick::ARocketGimmick()
 void ARocketGimmick::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -28,6 +29,8 @@ void ARocketGimmick::Tick(float DeltaTime)
 
 void ARocketGimmick::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	//auto acassad = Cast<AUnrealTCharacter>(OtherActor);
+	//acassad->SetLaunchPower();
 	if (APawn* PlayerPawn = Cast<APawn>(OtherActor))
 	{
 		GetWorldTimerManager().SetTimer(GravityTimerHandle, this, &ARocketGimmick::MoveRocket, 1, false);

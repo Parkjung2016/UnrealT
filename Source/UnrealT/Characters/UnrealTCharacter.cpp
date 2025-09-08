@@ -17,7 +17,7 @@ AUnrealTCharacter::AUnrealTCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	CameraComponent->SetupAttachment(GetMesh(),TEXT("head"));
+	CameraComponent->SetupAttachment(GetMesh(), TEXT("head"));
 	CameraComponent->SetRelativeLocation(FVector(0.f, 20.0f, 0.f)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
@@ -37,9 +37,14 @@ void AUnrealTCharacter::BeginPlay()
 void AUnrealTCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (GetCharacterMovement()->IsFalling() && IsAiming)
+	if (GetCharacterMovement()->IsFalling())
 	{
-		IsAiming = false;
+		if (IsAiming)
+			IsAiming = false;
+	}
+	else if (IsAiming != IsAimingButtonPressed)
+	{
+		IsAiming = IsAimingButtonPressed;
 	}
 }
 
@@ -55,14 +60,14 @@ void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(LookAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Look);
 		EnhancedInputComponent->BindAction(FireAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Fire);
 		EnhancedInputComponent->BindAction(AimingAction.Get(), ETriggerEvent::Triggered, this,
-		                                   &AUnrealTCharacter::Aiming);
+			&AUnrealTCharacter::Aiming);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error,
-		       TEXT(
-			       "'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
-		       ), *GetNameSafe(this));
+			TEXT(
+				"'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+			), *GetNameSafe(this));
 	}
 }
 
@@ -103,14 +108,32 @@ void AUnrealTCharacter::Fire(const FInputActionValue& Value)
 		launchDirection += randomVector;
 		launchDirection.Normalize();
 	}
-	FVector launchVelocity = launchDirection * LaunchPower;
-	LaunchCharacter(launchVelocity, true, true);
+	else
+	{
+		// FVector Velocity = GetVelocity();
+		// float speed = Velocity.Size();
+		//
+		// float randomSpread = speed * 0.1f;
+		//
+		// FVector randomVector = FMath::VRand();
+		// launchDirection += randomVector * randomSpread;
+		// launchDirection.Normalize();
+	}
+	FVector launchVelocity = launchDirection;
+	if (OverrideLaunchPower != FVector::ZeroVector)
+	{
+		launchVelocity *= OverrideLaunchPower;
+	}
+	else
+		launchVelocity *= LaunchPower;
+	LaunchCharacter(launchVelocity, false, true);
 }
 
 void AUnrealTCharacter::Aiming(const FInputActionValue& Value)
 {
 	if (GetCharacterMovement()->IsFalling())return;;
 	bool isAiming = Value.Get<bool>();
+	IsAimingButtonPressed = isAiming;
 	IsAiming = isAiming;
 	CameraComponent->FieldOfView = IsAiming ? 80.f : 90.f;
 }
