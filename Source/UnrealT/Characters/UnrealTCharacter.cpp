@@ -30,31 +30,16 @@ void AUnrealTCharacter::BeginPlay()
 	Super::BeginPlay();
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindUFunction(this, FName("UpdateWallDistance"));
-	IsReloading = false;
+
 	GetWorld()->GetTimerManager().SetTimer(UpdateWallTimerHandle, TimerDelegate, .03f, true);
 }
 
 void AUnrealTCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (GetCharacterMovement()->IsFalling())
+	if (GetCharacterMovement()->IsFalling() && IsAiming)
 	{
-		if (IsAiming)
-			IsAiming = false;
-	}
-	else if (IsAiming != IsAimingButtonPressed)
-	{
-		IsAiming = IsAimingButtonPressed;
-	}
-
-	if (IsReloading)
-	{
-		CurrentReloadTime += DeltaSeconds;
-		if (CurrentReloadTime >= ReloadTime)
-		{
-			IsReloading = false;
-			CurrentReloadTime = 0;
-		}
+		IsAiming = false;
 	}
 }
 
@@ -106,7 +91,6 @@ void AUnrealTCharacter::Look(const FInputActionValue& Value)
 
 void AUnrealTCharacter::Fire(const FInputActionValue& Value)
 {
-	if (IsReloading) return;
 	FVector launchDirection = -CameraComponent->GetForwardVector();
 	if (!IsAiming)
 	{
@@ -119,33 +103,14 @@ void AUnrealTCharacter::Fire(const FInputActionValue& Value)
 		launchDirection += randomVector;
 		launchDirection.Normalize();
 	}
-	else
-	{
-		// FVector Velocity = GetVelocity();
-		// float speed = Velocity.Size();
-		//
-		// float randomSpread = speed * 0.1f;
-		//
-		// FVector randomVector = FMath::VRand();
-		// launchDirection += randomVector * randomSpread;
-		// launchDirection.Normalize();
-	}
-	FVector launchVelocity = launchDirection;
-	if (OverrideLaunchPower != FVector::ZeroVector)
-	{
-		launchVelocity *= OverrideLaunchPower;
-	}
-	else
-		launchVelocity *= LaunchPower;
-	LaunchCharacter(launchVelocity, false, true);
-	IsReloading = true;
+	FVector launchVelocity = launchDirection * LaunchPower;
+	LaunchCharacter(launchVelocity, true, true);
 }
 
 void AUnrealTCharacter::Aiming(const FInputActionValue& Value)
 {
 	if (GetCharacterMovement()->IsFalling())return;;
 	bool isAiming = Value.Get<bool>();
-	IsAimingButtonPressed = isAiming;
 	IsAiming = isAiming;
 	CameraComponent->FieldOfView = IsAiming ? 80.f : 90.f;
 }

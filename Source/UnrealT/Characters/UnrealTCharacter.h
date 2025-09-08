@@ -62,23 +62,12 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FVector LaunchPower;
 
-	UPROPERTY(EditAnywhere)
-	float ReloadTime = 0.5f;
-
 public:
 	float GetWallDistance() const { return WallDistance; }
 	bool GetIsAiming() const { return IsAiming; }
 
-	void SetLaunchPower(const FVector& launchPower) { OverrideLaunchPower = launchPower; }
-	void SetLaunchPower() { OverrideLaunchPower = FVector::ZeroVector; }
-	FVector GetOriginLaunchPower() const { return LaunchPower; }
-
 private:
-	FTimerHandle UpdateWallTimerHandle;
-	FVector OverrideLaunchPower;
 	float WallDistance;
-	float CurrentReloadTime;
 	bool IsAiming;
-	bool IsAimingButtonPressed;
-	bool IsReloading;
+	FTimerHandle UpdateWallTimerHandle;
 };
