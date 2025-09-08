@@ -26,6 +26,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
 public:
@@ -34,6 +35,8 @@ public:
 protected:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Fire(const FInputActionValue& Value);
+	void Aiming(const FInputActionValue& Value);
 
 	UFUNCTION()
 	void UpdateWallDistance();
@@ -47,17 +50,24 @@ protected:
 	TSoftObjectPtr<UInputAction> LookAction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UInputAction> JumpAction;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UInputAction> MoveAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TSoftObjectPtr<UInputAction> FireAction;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	TSoftObjectPtr<UInputAction> AimingAction;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditAnywhere)
 	float MaxWallCheckDistance = 200.f;
+	UPROPERTY(EditAnywhere)
+	FVector LaunchPower;
 
 public:
 	float GetWallDistance() const { return WallDistance; }
+	bool GetIsAiming() const { return IsAiming; }
 
 private:
 	float WallDistance;
+	bool IsAiming;
 	FTimerHandle UpdateWallTimerHandle;
 };

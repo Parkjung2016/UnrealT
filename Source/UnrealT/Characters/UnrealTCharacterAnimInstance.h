@@ -36,12 +36,14 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category = "Aim")
 	float VerticalAngle;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Clips")
-	float WallDistanceLast;
+	UPROPERTY(BlueprintReadOnly, Category = "Aim")
+	float AimingWeightCurrent;
+	UPROPERTY(BlueprintReadOnly, Category = "Aim")
+	float AimingWeightInterpSpeed = 9.f;
 	UPROPERTY(BlueprintReadOnly, Category = "Clips")
 	float WallDistanceCurrent;
-
 	UPROPERTY(BlueprintReadOnly, Category = "Clips")
 	float WallDistanceInterpSpeed = 9.f;
+
+	float WallDistanceLast;
 };
