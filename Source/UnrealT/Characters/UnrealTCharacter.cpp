@@ -17,7 +17,7 @@ AUnrealTCharacter::AUnrealTCharacter()
 {
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	CameraComponent->SetupAttachment(GetMesh(), TEXT("head"));
+	CameraComponent->SetupAttachment(GetMesh(),TEXT("head"));
 	CameraComponent->SetRelativeLocation(FVector(0.f, 20.0f, 0.f)); // Position the camera
 	CameraComponent->bUsePawnControlRotation = true;
 
@@ -30,7 +30,7 @@ void AUnrealTCharacter::BeginPlay()
 	Super::BeginPlay();
 	FTimerDelegate TimerDelegate;
 	TimerDelegate.BindUFunction(this, FName("UpdateWallDistance"));
-
+	IsReloading = false;
 	GetWorld()->GetTimerManager().SetTimer(UpdateWallTimerHandle, TimerDelegate, .03f, true);
 }
 
@@ -46,6 +46,16 @@ void AUnrealTCharacter::Tick(float DeltaSeconds)
 	{
 		IsAiming = IsAimingButtonPressed;
 	}
+
+	if (IsReloading)
+	{
+		CurrentReloadTime += DeltaSeconds;
+		if (CurrentReloadTime >= ReloadTime)
+		{
+			IsReloading = false;
+			CurrentReloadTime = 0;
+		}
+	}
 }
 
 void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -60,14 +70,14 @@ void AUnrealTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		EnhancedInputComponent->BindAction(LookAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Look);
 		EnhancedInputComponent->BindAction(FireAction.Get(), ETriggerEvent::Triggered, this, &AUnrealTCharacter::Fire);
 		EnhancedInputComponent->BindAction(AimingAction.Get(), ETriggerEvent::Triggered, this,
-			&AUnrealTCharacter::Aiming);
+		                                   &AUnrealTCharacter::Aiming);
 	}
 	else
 	{
 		UE_LOG(LogTemplateCharacter, Error,
-			TEXT(
-				"'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
-			), *GetNameSafe(this));
+		       TEXT(
+			       "'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."
+		       ), *GetNameSafe(this));
 	}
 }
 
@@ -96,6 +106,7 @@ void AUnrealTCharacter::Look(const FInputActionValue& Value)
 
 void AUnrealTCharacter::Fire(const FInputActionValue& Value)
 {
+	if (IsReloading) return;
 	FVector launchDirection = -CameraComponent->GetForwardVector();
 	if (!IsAiming)
 	{
@@ -127,6 +138,7 @@ void AUnrealTCharacter::Fire(const FInputActionValue& Value)
 	else
 		launchVelocity *= LaunchPower;
 	LaunchCharacter(launchVelocity, false, true);
+	IsReloading = true;
 }
 
 void AUnrealTCharacter::Aiming(const FInputActionValue& Value)

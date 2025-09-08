@@ -16,7 +16,7 @@ struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-UCLASS(config = Game)
+UCLASS(config=Game)
 class AUnrealTCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -48,13 +48,13 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UInputAction> LookAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UInputAction> JumpAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UInputAction> MoveAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UInputAction> FireAction;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	TSoftObjectPtr<UInputAction> AimingAction;
 
 	UPROPERTY(EditAnywhere)
@@ -62,17 +62,23 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FVector LaunchPower;
 
+	UPROPERTY(EditAnywhere)
+	float ReloadTime = 0.5f;
+
 public:
 	float GetWallDistance() const { return WallDistance; }
 	bool GetIsAiming() const { return IsAiming; }
 
 	void SetLaunchPower(const FVector& launchPower) { OverrideLaunchPower = launchPower; }
 	void SetLaunchPower() { OverrideLaunchPower = FVector::ZeroVector; }
+	FVector GetOriginLaunchPower() const { return LaunchPower; }
 
 private:
 	FTimerHandle UpdateWallTimerHandle;
 	FVector OverrideLaunchPower;
 	float WallDistance;
+	float CurrentReloadTime;
 	bool IsAiming;
 	bool IsAimingButtonPressed;
+	bool IsReloading;
 };
