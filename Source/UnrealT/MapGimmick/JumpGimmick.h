@@ -16,18 +16,33 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* MeshComp;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
 
-private:
+private : 
+	FVector prevPower = FVector::ZeroVector;
+
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UStaticMeshComponent* MeshComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UStaticMeshComponent* MeshCom2p;
+	UPROPERTY(EditAnywhere, Category = "Info")
+	float ModifyJumpPower;
+
+	UFUNCTION()
 	void OnHit(
 		UPrimitiveComponent* HitComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
 		FVector NormalImpulse,
 		const FHitResult& Hit);
+
+	UFUNCTION()
+	void OnEndOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 };
